@@ -186,11 +186,15 @@
 
 
 
-<div class="dark-mode-toggle">
-  <button class="btn btn-sm btn-dark" onclick="document.body.classList.toggle('dark-mode')">
+<!-- Dark Mode + My Bookings Link Together -->
+<div class="position-absolute top-0 end-0 m-3 d-flex align-items-center gap-2">
+  <a href="my_bookings.html" class="btn btn-secondary">My Bookings</a>
+  <button class="btn btn-sm btn-dark" 
+    onClick="document.body.classList.toggle('dark-mode')">
     🌓 Toggle Dark Mode
   </button>
 </div>
+
 
 <div id="loader"><div></div></div>
 

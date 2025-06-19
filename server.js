@@ -51,6 +51,19 @@ app.post('/login', (req, res) => {
   }
 });
 
+// Get all bookings for a specific user
+app.get("/bookings/:email", (req, res) => {
+  const email = req.params.email;
+
+  const sql = "SELECT * FROM bookings WHERE email = ?";
+  db.query(sql, [email], (err, results) => {
+    if (err) {
+      console.error("Error retrieving bookings:", err);
+      return res.status(500).json({ success: false, message: "Database error" });
+    }
+    res.json({ success: true, data: results });
+  });
+});
 
 
 // Start Server
