@@ -36,6 +36,22 @@ app.post('/book', (req, res) => {
     res.json({ message: 'Booking successful', id: result.insertId });
   });
 });
+// Dummy login (replace with DB check for production)
+const users = [
+  { username: 'admin', password: 'admin123' }
+];
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find(u => u.username === username && u.password === password);
+  if (user) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ success: false });
+  }
+});
+
+
 
 // Start Server
 app.listen(port, () => {
