@@ -289,6 +289,7 @@
         <h5 class="fw-bold">🎉 BOOKING CONFIRMED!</h5>
         <p>Thank you for booking with TAP IN.</p>
         <p>Our team will contact you shortly with payment and booking details via email.</p>
+        <button class="btn btn-danger mt-2" onclick="cancelBooking()">❌ Cancel Booking</button>
         <button class="btn btn-success" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
@@ -584,6 +585,20 @@ eventSelect.addEventListener('change', function() {
   updatePrice();
   renderSeats();
 });
+// Your cancelBooking function
+function cancelBooking() {
+  // Clear the form and UI
+  document.getElementById("bookingForm").reset();
+  document.getElementById("seatMap").innerHTML = '';
+  document.getElementById("quantity").value = 0;
+  document.getElementById("amount").value = 0;
+
+  // Close modal
+  const modal = bootstrap.Modal.getInstance(document.getElementById("bookingModal"));
+  if (modal) modal.hide();
+
+  alert("Booking cancelled.");
+}
 
 window.onload = () => {
   renderEvents();
