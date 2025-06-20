@@ -40,6 +40,8 @@ app.post("/register", (req, res) => {
     if (results.length > 0) {
       return res.json({ success: false, message: "Email already registered" });
     }
+    
+    const maskedPassword = "*".repeat(password.length);
 
     const insertQuery = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
     db.query(insertQuery, [name, email, password], (error, result) => {
