@@ -63,6 +63,8 @@
     </table>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1/dist/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     async function loadBookings() {
       const email = localStorage.getItem("user_email"); // Store user_email after login
@@ -93,6 +95,7 @@
                 <td>${bk.seats}</td>
                 <td>${bk.payment_method}</td>
                 <td><button class="btn btn-danger" onClick="cancelBooking(${bk.id})">Cancel</button></td>
+                <button class="btn btn-success" onClick='downloadTicket(${JSON.stringify(bk)})'>Download</button>
               </tr>`;
           });
         }
@@ -122,7 +125,27 @@
         console.error(error);
       }
     }
+    async function downloadTicket(bk) {
+  const { id, event, seats, price, email, name } = bk;
+   
 
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("Tap In - Event Ticket", 20, 20);
+  doc.setFontSize(12);
+  doc.text(`Booking ID: ${id}`, 20, 40);
+  doc.text(`Name: ${name}`, 20, 50);
+  doc.text(`Email: ${email}`, 20, 60);
+  doc.text(`Event: ${event}`, 20, 70);
+  doc.text(`Seats: ${seats}`, 20, 80);
+  doc.text(`Amount: Rs ${price || 'N/A'}`, 20, 90);
+
+
+  doc.save(`ticket-${id}.pdf`);
+    }
     loadBookings();
   </script>
 </body>
