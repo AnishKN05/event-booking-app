@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>My Bookings | Tap In</title>
-  <!-- ✅ Use Bootstrap for nicer layout and table formatting -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link 
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -38,6 +37,9 @@
       top: 20px;
       left: 20px;
     }
+    .qr-container {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -56,17 +58,18 @@
           <th>Action</th>
         </tr>
       </thead>
-      
       <tbody>
         <!-- Bookings will be inserted here -->
       </tbody>
     </table>
   </div>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
   <script>
     async function loadBookings() {
-      const email = localStorage.getItem("user_email"); // Store user_email after login
+      const email = localStorage.getItem("user_email"); 
       if (!email) {
         alert("Please login first.");
         window.location.href = "login.html";
@@ -80,22 +83,32 @@
         if (result.success) {
           const tableBody = document.querySelector('#bookingsTable tbody');
           tableBody.innerHTML = '';
-          
+
           if (result.data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No bookings found</td></tr>';
             return;
           }
 
           result.data.forEach(bk => {
-            tableBody.innerHTML += `
-              <tr>
-                <td>${bk.id}</td>
-                <td>${bk.event}</td>
-                <td>${bk.seats}</td>
-                <td>${bk.payment_method}</td>
-                <td><button class="btn btn-danger" onClick="cancelBooking(${bk.id})">Cancel</button></td>
-                <button class="btn btn-success" onClick='downloadTicket(${JSON.stringify(bk)})'>Download</button>
-              </tr>`;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${bk.id}</td>
+              <td>${bk.event}<div id="qr-${bk.id}" class="qr-container"></div></td>
+              <td>${bk.seats}</td>
+              <td>${bk.payment_method}</td>
+              <td>
+                <button class="btn btn-danger btn-sm" onClick="cancelBooking(${bk.id})">Cancel</button>
+                <button class="btn btn-success btn-sm mt-2" onClick='downloadTicket(${JSON.stringify(bk)})'>Download</button>
+              </td>
+            `;
+            tableBody.appendChild(row);
+
+            // Generate the QR code
+            const qrData = `Booking ID: ${bk.id}, Event: ${bk.event}, Seats: ${bk.seats}, Email: ${bk.email}`;
+            QRCode.toCanvas(document.getElementById(`qr-${bk.id}`), qrData, {
+              width: 80,
+              margin: 1
+            });
           });
         }
       } catch (error) {
@@ -124,27 +137,26 @@
         console.error(error);
       }
     }
+
     async function downloadTicket(bk) {
-  const { id, event, seats, price, email, name } = bk;
-   
+      const { id, event, seats, price, email, name } = bk;
 
-  const { jsPDF } = window.jspdf;
+      const { jsPDF } = window.jspdf;
 
-  const doc = new jsPDF();
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("Tap In - Event Ticket", 20, 20);
+      doc.setFontSize(12);
+      doc.text(`Booking ID: ${id}`, 20, 40);
+      doc.text(`Name: ${name}`, 20, 50);
+      doc.text(`Email: ${email}`, 20, 60);
+      doc.text(`Event: ${event}`, 20, 70);
+      doc.text(`Seats: ${seats}`, 20, 80);
+      doc.text(`Amount: Rs ${price || 'N/A'}`, 20, 90);
 
-  doc.setFontSize(16);
-  doc.text("Tap In - Event Ticket", 20, 20);
-  doc.setFontSize(12);
-  doc.text(`Booking ID: ${id}`, 20, 40);
-  doc.text(`Name: ${name}`, 20, 50);
-  doc.text(`Email: ${email}`, 20, 60);
-  doc.text(`Event: ${event}`, 20, 70);
-  doc.text(`Seats: ${seats}`, 20, 80);
-  doc.text(`Amount: Rs ${price || 'N/A'}`, 20, 90);
-
-
-  doc.save(`ticket-${id}.pdf`);
+      doc.save(`ticket-${id}.pdf`);
     }
+
     loadBookings();
   </script>
 </body>
